@@ -1,0 +1,24 @@
+OneVersion refers to my (Wesley Mason :: http://1stvamp.org/) freelance trading
+name, 1v Software (One Version Software).
+This repo is for bits and pieces I collect over time (and over the years if I
+delve back into my archive off code) that don't necessarily warrant their own
+project repo.
+
+
+delete_old_emails.php - quick & dirty shell script written in PHP to connect to
+an IMAP box and delete any emails older than a set period of days.
+
+DynamicClass - a fun hack class using PHP5.3 features to add "dynamic" methods
+onto already defined classes at runtime. Not production useable as it's a big
+hack on some language features for something that would need to be part of the
+core, and not just using lambdas.
+
+php-check.php - patched version of the "php-check" script to quickly support
+PHP5 as well as PHP4.
+
+twnotifier - patched version of the 1.0 branch of twnotifier.py to add on
+support for Twitter profile pictures as notification icons.
+
+HTML_QuickForm_Scaffold - work in progress scaffolding scripts for quickly
+creating base form HTML views from PEAR HTML_QuickForms, similiar to scaffolding
+in RoR / CakePHP etc.
