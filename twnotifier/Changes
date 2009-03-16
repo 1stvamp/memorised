@@ -1,0 +1,26 @@
+# -*-n3-*-
+
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix asc:     <http://aaronland.info/ns/changefile/> .
+                                     
+<>
+        dc:identifier           "$Id: Changes,v 1.1 2006/11/25 17:02:24 asc Exp $" ;
+        dc:description          "Changes for twnotifier.py" ;
+        dcterms:references      <http://aaronland.info/python/twitter/twnotifier/> .
+
+<http://aaronland.info/python/twitter/twnotifier-1.0.tar.gz>
+        dcterms:isVersionOf <http://aaronland.info/python/twitter/twnotifier/> ;
+
+        doap:Version    [
+                        doap:revision     "1.0" ;
+                        doap:created      "2006-11-25" ;
+                        ];
+        asc:changes     [
+                        asc:comment       "Initial release." ;
+                        ] .
+
+<http://aaronland.info/python/twitter/twnotifier/>
+        a doap:Project ;
+        doap:download-mirror    "http://aaronland.info/python/twitter/twnotifier/" .
