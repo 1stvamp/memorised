@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<class name="Category">
+        <variable name="cat_id">
+                <map>id</map>
+        </variable>
+        <variable name="cat_title">
+                <map>name</map>
+        </variable>
+</class>
