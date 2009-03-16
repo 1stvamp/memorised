@@ -1,0 +1,1 @@
+<? $this->%%formName%%->displayElementError('%%id%%'); ?>
