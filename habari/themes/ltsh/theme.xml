@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<theme>
+	<name>Leeds2600 Theme for Habari</name>
+	<author>1stvamp</author>
+	<url>http://github.com/1stvamp/oneversion/tree/master/habari/themes/ltsh</url>
+	<version>1.0</version>
+	<template_engine>rawphpengine</template_engine>
+	<description>A simple design for the Leeds2600 site based on an open design from http://www.pikanai.com/ &amp; the K2 Habari theme</description>
+	<license url="http://www.apache.org/licenses/LICENSE-2.0.html">Apache Software License 2.0</license>
+</theme>
