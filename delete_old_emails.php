@@ -1,5 +1,11 @@
 #!/usr/bin/php
 <?php
+
+/*
+Exaple crontab line:
+* 23 * * * ~/delete_old_emails.php > /dev/null 2>&1
+*/
+
 function days_between($time1, $time2){ 
 	if ($time1 >= $time2){ 
 		$time_to_calc1 = $time2;
@@ -17,7 +23,7 @@ $username = '';
 $password = '';
 $imap_handle = imap_open($server, $username, $password, OP_SILENT);
 
-$imap_mail_count = imap_num_msg($mh);
+$imap_mail_count = imap_num_msg($imap_handle);
 for ($i = 1; $i <= $imap_mail_count; $i++) {
 	$mail_headers = imap_header($imap_handle, $i);
 	if (days_between(time(), strtotime($mail_headers->date)) >= $days_old) {
@@ -26,5 +32,4 @@ for ($i = 1; $i <= $imap_mail_count; $i++) {
 }
 imap_expunge($imap_handle);
 imap_close($imap_handle);
-}
 ?>
