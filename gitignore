@@ -1,0 +1,14 @@
+# Place below in a global or project .gitignore file and tell git to ignore
+# anything matching these rules
+
+.DS_Store
+Thumbs.db
+._*
+*.class
+dist/
+build/
+log/
+logs/
+*.*~
+*.bak
+.svn/
