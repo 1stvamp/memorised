@@ -1,7 +1,7 @@
 import memcache
 from functools import wraps
 
-def memorise(fn, mc=None, mc_servers=None):
+def memorise(fn, mc=None, mc_servers=None, set_key=None):
         if not mc:
                 if not mc_servers:
                         mc_servers = ['localhost:11211']
@@ -44,16 +44,27 @@ def memorise(fn, mc=None, mc_servers=None):
                                         output = None
                         else:
                                 if method:
-                                        set_value = False
+                                        offset = 1
+                                else:
+                                        offset = 0
+                                set_value = False
+                                if set_key:
+                                        if len(args) > offset:
+                                                arg_index = argnames.index(set_key)
+                                                set_value = args[arg_index]
+                                        if set_value == False:
+                                                if len(kwargs) > 0:
+                                                        set_value = kwargs.get(set_key)
+                                else:
                                         if len(args) > 1:
                                                 set_value = args[1]
                                         else:
                                                 if len(kwargs) > 0:
-                                                        set_value = pop(kwargs)
+                                                        set_value = kwargs.iteritems().pop(0)
 
-                                        if set_value is not False:
-                                                if set_value is None:
-                                                        set_value = memcache_none()
+                                if set_value is not False:
+                                        if set_value is None:
+                                                set_value = memcache_none()
                                 output = fn(*args, **kwargs)
                                 mc.set(key, set_value)
 
@@ -74,10 +85,11 @@ class Test:
         def __init__(self):
                 self.t = None
 
-        @memorise
+        
         def set_t(self, t):
                 self.t = t
                 return True
+        set_t = memorise(set_t, set_key='t')
 
         @memorise
         def get_t(self):
