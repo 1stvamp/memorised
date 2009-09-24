@@ -12,3 +12,4 @@ logs/
 *.*~
 *.bak
 .svn/
+*.pyc
