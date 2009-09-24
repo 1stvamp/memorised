@@ -83,25 +83,8 @@ class memcache_none:
         """
         pass
 
+if __name__ == '__main__':
+	# Run unit tests
+	from memorised import tests
+	tests.run()
 
-class Test:
-        def __init__(self):
-                self.t = None
-
-        
-        @memorise(set_key='t')
-        def set_t(self, t):
-                self.t = t
-                return True
-
-        @memorise()
-        def get_t(self):
-                return self.t
-
-
-test = Test()
-print test.set_t(t='test')
-print test.get_t()
-
-test = Test()
-print test.get_t()
