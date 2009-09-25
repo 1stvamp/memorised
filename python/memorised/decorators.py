@@ -1,16 +1,19 @@
 import memcache
+import hashlib
+import pickle
 from functools import wraps
 
 class memorise(object):
-        def __init__(self, mc=None, mc_servers=None, set_key=None):
+        def __init__(self, mc=None, mc_servers=None, set_key=None, parent_keys=[]):
                 self.set_key = set_key
+                self.parent_keys = parent_keys
                 if not mc:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
                         self.mc = memcache.Client(mc_servers, debug=0)
                 else:
                         self.mc = mc
-                        
+
         def __call__(self, fn):
                 @wraps(fn)
                 def wrapper(*args, **kwargs):
@@ -32,11 +35,16 @@ class memorise(object):
 
                         if method:
                                 # Get the class name from the self argument
-                                parent_name = "%s::" % args[0].__class__.__name__
+                                keys = []
+                                if len(self.parent_keys) > 0:
+                                        for key in self.parent_keys:
+                                                keys.append("%s=%s" % (key, getattr(args[0], key)))
+                                        keys = ','.join(keys)
+                                parent_name = "%s[%s]::" % (args[0].__class__.__name__, keys)
                         else:
                                 parent_name = ''
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
-                        print "key: %s" % key
+                        key = hashlib.md5(key).hexdigest()
                         if self.mc:
                                 if getter:
                                         output = self.mc.get(key)
@@ -84,7 +92,7 @@ class memcache_none:
         pass
 
 if __name__ == '__main__':
-	# Run unit tests
-	from memorised import tests
-	tests.run()
+        # Run unit tests
+        from memorised import tests
+        tests.run()
 
