@@ -6,7 +6,6 @@ class Test:
                 self.id = 1
 
 
-        @memorise(set_key='t', parent_keys=['id'])
         def set_t(self, t):
                 self.t = t
                 return True
@@ -16,12 +15,12 @@ class Test:
                 return self.t
 
 def run():
-        test = Test()
-        print test.set_t(t='test')
-        print test.get_t()
+        #test = Test()
+	#print "set_t(t='test'): %s" % test.set_t(t='test')
+	#print "get_t(): %s" % test.get_t()
 
         test = Test()
-        print test.get_t()
+	print "get_t(): %s" % test.get_t()
 
 
 if __name__ == '__main__':

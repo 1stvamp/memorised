@@ -1,15 +1,32 @@
+"""memorised module - container for the memorise python-memcache decorator"""
+__author__ = 'Wes Mason <wes [at] 1stvamp [dot] org>'
+__docformat__ = 'restructuredtext en'
+
 import memcache
 from hashlib import md5
 import pickle
 from functools import wraps
 
 class memorise(object):
-	"""
-	"""
+	"""Decorate any function or class method/staticmethod with a memcace
+	enabled caching wrapper. Similar to the memoise pattern, this will push
+	mutator operators into memcache.Client.set(), and pull accessor
+	operations from memcache.Client.get().
+	An MD5 hash of values, such as attributes on the parent instance/class,
+	and arguements, is used as a unique key in memcache.
 
-        def __init__(self, mc=None, mc_servers=None, set_key=None, parent_keys=[]):
+        :Parameters:
+	  `mc` : memcache.Client
+            The memcache client instance to use.
+          `mc_servers` : list
+            A list of memcache servers to use in the cluster.
+	  `parent_keys` : list
+	    A list of attributes in the parent instance or class to use for
+	    key hashing.
+        """
+
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[]):
 		# Instance some default values, and customisations
-                self.set_key = set_key
                 self.parent_keys = parent_keys
                 if not mc:
                         if not mc_servers:
@@ -28,18 +45,12 @@ class memorise(object):
 			# reference to their parent instance/class within this
 			# frame
                         argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
-                        getter = False
                         method = False
 			static = False
                         if argnames[0] == 'self' or argnames[0] == 'cls':
                                 method = True
 				if argnames[0] == 'cls':
 					static = True
-                                if len(args) == 1:
-                                        getter = True
-                        else:
-                                if len(args) == 0:
-                                        getter = True
 
                         arg_values_hash = []
 			# Grab all the keyworded and non-keyworded arguements so
@@ -66,78 +77,39 @@ class memorise(object):
 			# Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
                         key = md5(key).hexdigest()
+			print "key: %s" % key
 
                         if self.mc:
-                                if getter:
-					# Try and get the value from memcache
-                                        output = self.mc.get(key)
-                                        if not output:
-						# Otherwise get the value from
-						# the function/method
-                                                output = fn(*args, **kwargs)
-						# And push it into memcache
-                                                self.mc.set(key, output)
-                                        if output.__class__ is memcache_none:
-						# Because not-found keys return
-						# a None value, we use the
-						# memcache_none stub class to
-						# detect these, and make a
-						# distinction between them and
-						# actual None values
-                                                output = None
-                                else:
-					# Methods will include a 'self' arg and
-					# staticmethods will include a 'cls'
-					# arg, in this case skip it to get the
-					# other args
-                                        if method:
-                                                offset = 1
-                                        else:
-                                                offset = 0
-                                        set_value = False
-					# Use self.set_key if a custom arg has
-					# been defined by this set operation
-                                        if self.set_key:
-                                                if len(args) > offset:
-							# Setter arguement passed
-							# in without a keyword,
-							# try to get it from *args
-                                                        arg_index = argnames.index(self.set_key)
-                                                        set_value = args[arg_index]
-                                                if set_value == False:
-							# Setter arguement
-							# passed in using
-							# keyword
-                                                        if len(kwargs) > 0:
-                                                                set_value = kwargs.get(self.set_key)
-                                        else:
-						# No custom arg defined for
-						# setter value, so just try to
-						# use the first one
-                                                if len(args) > offset:
-                                                        set_value = args[offset]
-                                                else:
-                                                        if len(kwargs) > 0:
-                                                                set_value = kwargs.iteritems().pop(0)
-
-                                        if set_value is not False:
-                                                if set_value is None:
-							# None value being set,
-							# use special
-							# memcache_none type to
-							# store this
-                                                        set_value = memcache_none()
-					# Get the output of th setter when we
-					# call it in case it returns a value
-                                        output = fn(*args, **kwargs)
-					# Push the setter value (not the return
-					# value) into memcache
-                                        self.mc.set(key, set_value)
+				# Try and get the value from memcache
+				output = self.mc.get(key)
+				if not output:
+					print "Not found in mc, getting value"
+					# Otherwise get the value from
+					# the function/method
+					output = fn(*args, **kwargs)
+					if output is None:
+						set_value = memcache_none()
+					else:
+						set_value = output
+					print "got '%s'" % set_value
+					# And push it into memcache
+					self.mc.set(key, set_value)
+				if output.__class__ is memcache_none:
+					# Because not-found keys return
+					# a None value, we use the
+					# memcache_none stub class to
+					# detect these, and make a
+					# distinction between them and
+					# actual None values
+					print "found memcache_none, returning None"
+					output = None
+				print "returning '%s' from mc" % output
 
                         else :
 				# No memcache client instance available, just
 				# return the output of the method
-                                return fn(*args, **kwargs)
+				print "no mc found"
+                                output = fn(*args, **kwargs)
                         return output
                 return wrapper
 
