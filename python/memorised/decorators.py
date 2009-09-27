@@ -65,7 +65,8 @@ class memorise(object):
 			# that we can use them in the hashed memcache key
                         for i,v in (zip(argnames, args) + kwargs.items()):
                                 if i != 'self':
-                                        arg_values_hash.append("%s=%s" % (i,v))
+					if i != 'cls':
+						arg_values_hash.append("%s=%s" % (i,v))
 
 			class_name = None
                         if method:
@@ -73,23 +74,22 @@ class memorise(object):
                                 if len(self.parent_keys) > 0:
                                         for key in self.parent_keys:
                                                 keys.append("%s=%s" % (key, getattr(args[0], key)))
-                                        keys = ','.join(keys)
+				keys = ','.join(keys)
 				if static:
                                 # Get the class name from the cls argument
-					class_name = arg[0]
+					class_name = args[0].__name__
 				else:
                                 # Get the class name from the self argument
 					class_name = args[0].__class__.__name__
-                                parent_name = "%s[%s]::" % (class_name, keys)
+				module_name = inspect.getmodule(args[0]).__name__
+                                parent_name = "%s.%s[%s]::" % (module_name, class_name, keys)
                         else:
 				# Function passed in, use the module name as the
 				# parent
                                 parent_name = inspect.getmodule(fn).__name__
 			# Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
-			print "mkey: %s" % key
                         key = md5(key).hexdigest()
-			print "hashed mkey: %s" %  key
 
                         if self.mc:
 				# Try and get the value from memcache
