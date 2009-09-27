@@ -4,7 +4,7 @@ About memorised
 ``memorised`` is a python module containing handy ``python-memcached``
 decorators and utils.
 Specifically the ``memorise`` decorator allows you to quickly and simply
-add memcache caching to any function of method.
+add memcache caching to any function or method.
 
 Installation
 ============
@@ -38,7 +38,7 @@ that you want to be appended to the memcache key::
     class MyModel:
         id = 1
 
-        @memeorised(parent_keys=['id'])
+        @memorise(parent_keys=['id'])
         def get_stats():
             return blah()
 
