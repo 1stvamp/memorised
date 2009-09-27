@@ -32,7 +32,7 @@ You can do the same for simple instance and class methos, however for most
 instance methods, e.g. when caching results for database models, you probably
 want to include some form of identity to single out a method call on one
 instance from another instance. You can do this by providing a list of one ore
-more ```parent keys```, these are the names of attributes in the parent instance
+more `parent keys`, these are the names of attributes in the parent instance
 that you want to be appended to the memcache key::
 
     class MyModel:
