@@ -13,3 +13,4 @@ logs/
 *.bak
 .svn/
 *.pyc
+*.swp

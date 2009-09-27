@@ -6,6 +6,7 @@ import memcache
 from hashlib import md5
 import pickle
 from functools import wraps
+import inspect
 
 class memorise(object):
 	"""Decorate any function or class method/staticmethod with a memcace
@@ -23,11 +24,17 @@ class memorise(object):
 	  `parent_keys` : list
 	    A list of attributes in the parent instance or class to use for
 	    key hashing.
+	  `set` : string
+	    An attribute present in the parent instance or class to set
+	    to the same value as the cached return value. Handy for keeping
+	    models in line if attributes are accessed directly in other
+	    places, or for pickling instances.
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[]):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None):
 		# Instance some default values, and customisations
                 self.parent_keys = parent_keys
+		self.set = set
                 if not mc:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
@@ -47,10 +54,11 @@ class memorise(object):
                         argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
                         method = False
 			static = False
-                        if argnames[0] == 'self' or argnames[0] == 'cls':
-                                method = True
-				if argnames[0] == 'cls':
-					static = True
+			if len(argnames) > 0:
+				if argnames[0] == 'self' or argnames[0] == 'cls':
+					method = True
+					if argnames[0] == 'cls':
+						static = True
 
                         arg_values_hash = []
 			# Grab all the keyworded and non-keyworded arguements so
@@ -59,6 +67,7 @@ class memorise(object):
                                 if i != 'self':
                                         arg_values_hash.append("%s=%s" % (i,v))
 
+			class_name = None
                         if method:
                                 keys = []
                                 if len(self.parent_keys) > 0:
@@ -73,17 +82,19 @@ class memorise(object):
 					class_name = args[0].__class__.__name__
                                 parent_name = "%s[%s]::" % (class_name, keys)
                         else:
-                                parent_name = ''
+				# Function passed in, use the module name as the
+				# parent
+                                parent_name = inspect.getmodule(fn).__name__
 			# Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
+			print "mkey: %s" % key
                         key = md5(key).hexdigest()
-			print "key: %s" % key
+			print "hashed mkey: %s" %  key
 
                         if self.mc:
 				# Try and get the value from memcache
 				output = self.mc.get(key)
 				if not output:
-					print "Not found in mc, getting value"
 					# Otherwise get the value from
 					# the function/method
 					output = fn(*args, **kwargs)
@@ -91,7 +102,6 @@ class memorise(object):
 						set_value = memcache_none()
 					else:
 						set_value = output
-					print "got '%s'" % set_value
 					# And push it into memcache
 					self.mc.set(key, set_value)
 				if output.__class__ is memcache_none:
@@ -101,14 +111,19 @@ class memorise(object):
 					# detect these, and make a
 					# distinction between them and
 					# actual None values
-					print "found memcache_none, returning None"
 					output = None
-				print "returning '%s' from mc" % output
+				if self.set:
+					# Set an attribute of the parent
+					# instance/class to the output value,
+					# this can help when other code
+					# accesses attribures directly, or you
+					# want to pickle the instance
+					set_attr = getattr(fn.__class__, self.set)
+					set_attr = output
 
                         else :
 				# No memcache client instance available, just
 				# return the output of the method
-				print "no mc found"
                                 output = fn(*args, **kwargs)
                         return output
                 return wrapper
