@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<class name="Topic">
+        <variable name="topic_id">
+                <map>id</map>
+        </variable>
+        <variable name="topic_title">
+                <map>name</map>
+        </variable>
+        <variable name="topic_time">
+                <map>time</map>
+        </variable>
+        <variable name="topic_views">
+                <map>views</map>
+        </variable>
+        <variable name="topic_replies">
+                <map>replies</map>
+        </variable>
+        <variable name="topic_status">
+                <map>status</map>
+        </variable>
+        <variable name="topic_type">
+                <map>type</map>
+        </variable>
+        <variable name="topic_poster">
+                <map>poster_id</map>
+        </variable>
+        <variable name="forum_id" />
+</class>

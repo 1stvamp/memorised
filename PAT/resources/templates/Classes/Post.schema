@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<class name="Post">
+        <variable name="post_id">
+                <map>id</map>
+        </variable>
+        <variable name="enable_bbcode">
+                <map>bbcode</map>
+        </variable>
+        <variable name="enable_html">
+                <map>html</map>
+        </variable>
+        <variable name="poster_id" />
+</class>

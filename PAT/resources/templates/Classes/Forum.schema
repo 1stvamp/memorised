@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<class name="Forum">
+        <variable name="forum_id">
+                <map>id</map>
+        </variable>
+        <variable name="forum_name">
+                <map>name</map>
+        </variable>
+        <variable name="category_id">
+                <map>cat_id</map>
+        </variable>
+</class>
