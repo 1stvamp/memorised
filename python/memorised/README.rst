@@ -24,6 +24,8 @@ To cache a simple unbound function, just include the ``@memorise()`` tag to the
 function definition (the paranthesis are needed as the decorator needs to be
 initialised at the time of binding to handle ``memorise`` specific arguements)::
 
+    from memorised.decorators import memorise
+
     @memorise()
     def myfunction():
         return 'hello world'
