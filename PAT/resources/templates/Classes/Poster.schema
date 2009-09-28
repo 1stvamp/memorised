@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<class name="Poster">
-        <variable name="user_id">
-                <map>id</map>
-        </variable>
-        <variable name="username">
-                <map>name</map>
-        </variable>
-</class>
