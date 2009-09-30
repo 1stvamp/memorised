@@ -4,7 +4,6 @@ __docformat__ = 'restructuredtext en'
 
 import memcache
 from hashlib import md5
-import pickle
 from functools import wraps
 import inspect
 
