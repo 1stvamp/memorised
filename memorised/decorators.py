@@ -30,11 +30,17 @@ class memorise(object):
             places, or for pickling instances.
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None):
+        def __init__(self, *args, **kwargs):
+		if len(args) > 1:
+			self.fn = args[1]
+		else:
+			self.fn = None
                 # Instance some default values, and customisations
-                self.parent_keys = parent_keys
-                self.set = set
+                self.parent_keys = kwargs.get('parent_keys', None)
+                self.set = kwargs.get('set', None)
+		mc = kwargs.get('mc', None)
                 if not mc:
+			mc_servers = kwargs.get('mc_servers', None)
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
                         self.mc = memcache.Client(mc_servers, debug=0)
