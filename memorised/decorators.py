@@ -36,13 +36,11 @@ class memorise(object):
 		else:
 			self.fn = None
                 # Instance some default values, and customisations
-                self.parent_keys = kwargs.get('parent_keys', None)
+                self.parent_keys = kwargs.get('parent_keys', [])
                 self.set = kwargs.get('set', None)
 		mc = kwargs.get('mc', None)
                 if not mc:
-			mc_servers = kwargs.get('mc_servers', None)
-                        if not mc_servers:
-                                mc_servers = ['localhost:11211']
+			mc_servers = kwargs.get('mc_servers', ['localhost:11211'])
                         self.mc = memcache.Client(mc_servers, debug=0)
                 else:
                         self.mc = mc
