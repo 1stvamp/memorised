@@ -47,7 +47,9 @@ class memorise(object):
                 else:
                         self.mc = mc
 
-        def __call__(self, fn):
+        def __call__(self, fn=None):
+		if not fn:
+			fn = self.fn
                 @wraps(fn)
                 def wrapper(*args, **kwargs):
                         # Get a list of arguement names from the func_code
