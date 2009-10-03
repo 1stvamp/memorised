@@ -45,7 +45,7 @@ class memorise(object):
                 else:
                         self.mc = mc
 
-        def __call__(self, fn=None):
+        def __call__(self, fn=None, *args, **kwargs):
 		if not fn:
 			fn = self.fn
                 @wraps(fn)
@@ -131,6 +131,8 @@ class memorise(object):
                                 # return the output of the method
                                 output = fn(*args, **kwargs)
                         return output
+		if self.fn:
+			return wrapper(fn, *args, **kwargs)
                 return wrapper
 
 class memcache_none:

@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 import memcache
 from hashlib import md5
 import inspect
+from memorised.decorators import memorise
 
 def uncache(fn, mc=None, mc_servers=None, parent_keys=[]):
         if not mc:
@@ -12,7 +13,13 @@ def uncache(fn, mc=None, mc_servers=None, parent_keys=[]):
                         mc_servers = ['localhost:11211']
                 mc = memcache.Client(mc_servers, debug=0)
         def wrapper(*args, **kwargs):
-                argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
+		print type(fn)
+		if type(fn) == memorise:
+			argnames = ()
+			print inspect.getargspec(fn)
+		else:
+			print inspect.getargspec(fn.im_func)
+			argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
                 method = False
                 static = False
                 if hasattr(fn, 'im_self'):

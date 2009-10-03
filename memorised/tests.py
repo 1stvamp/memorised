@@ -34,7 +34,7 @@ class TestModel:
                 cls.c = c
 
         @classmethod
-        @memorise()
+        @memorise
         def get_c(cls):
                 return cls.c
 
@@ -57,27 +57,27 @@ class TestMemorise(unittest.TestCase):
         def setUp(self):
                 self.mc = memcache.Client(['localhost:11211'], debug=0)
 
-        def testsimplefunction(self):
-                uncache(func_get_a)()
-                a1 = func_get_a()
-                a2 = func_get_a()
-                self.assertEqual(a1, a2)
-                b1 = func_get_b()
-                b2 = func_get_b()
-                self.assertNotEqual(b1, b2)
+#        def testsimplefunction(self):
+#                uncache(func_get_a)()
+#                a1 = func_get_a()
+#                a2 = func_get_a()
+#                self.assertEqual(a1, a2)
+#                b1 = func_get_b()
+#                b2 = func_get_b()
+#                self.assertNotEqual(b1, b2)
 
-        def testinstancemethod(self):
-                t = TestModel()
-                u = unique()
-                t.set_a(u)
-                uncache(t.get_a, parent_keys=['id'])()
-                self.assertEqual(u, t.get_a())
-                t1 = TestModel()
-                self.assertEqual(u, t1.get_a())
-                t.set_b(u)
-                self.assertEqual(u, t.get_b())
-                t.set_b(1)
-                self.assertEqual(1, t.get_b())
+#        def testinstancemethod(self):
+#                t = TestModel()
+#                u = unique()
+#                t.set_a(u)
+#                uncache(t.get_a, parent_keys=['id'])()
+#                self.assertEqual(u, t.get_a())
+#                t1 = TestModel()
+#                self.assertEqual(u, t1.get_a())
+#                t.set_b(u)
+#                self.assertEqual(u, t.get_b())
+#                t.set_b(1)
+#                self.assertEqual(1, t.get_b())
 
         def testclassmethod(self):
                 u = unique()
