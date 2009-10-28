@@ -28,12 +28,19 @@ class memorise(object):
             to the same value as the cached return value. Handy for keeping
             models in line if attributes are accessed directly in other
             places, or for pickling instances.
+          `ttl` : integer
+            Tells memcached the time which this value should expire.
+            We default to 0 == cache forever. None is turn off caching.
+          `update` : boolean
+            Refresh ttl value in cache.
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
+                self.ttl = ttl
+                self.update = update
                 if not mc:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
@@ -93,16 +100,21 @@ class memorise(object):
                         if self.mc:
                                 # Try and get the value from memcache
                                 output = self.mc.get(key)
+                                exist = True
                                 if not output:
+                                        exist = False
                                         # Otherwise get the value from
                                         # the function/method
                                         output = fn(*args, **kwargs)
+                                if self.update or not exist:
                                         if output is None:
                                                 set_value = memcache_none()
                                         else:
                                                 set_value = output
                                         # And push it into memcache
-                                        self.mc.set(key, set_value)
+                                        if self.ttl != None:
+                                                print 'caching'
+                                                self.mc.set(key, set_value, time=self.ttl)
                                 if output.__class__ is memcache_none:
                                         # Because not-found keys return
                                         # a None value, we use the
