@@ -1,6 +1,7 @@
 """memorised module - container for the memorise python-memcache decorator"""
 __author__ = 'Wes Mason <wes [at] 1stvamp [dot] org>'
 __docformat__ = 'restructuredtext en'
+__version__ = '1.0.1'
 
 import memcache
 from hashlib import md5
