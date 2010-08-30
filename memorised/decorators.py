@@ -69,7 +69,7 @@ class memorise(object):
                         arg_values_hash = []
                         # Grab all the keyworded and non-keyworded arguements so
                         # that we can use them in the hashed memcache key
-                        for i,v in (zip(argnames, args) + kwargs.items()):
+                        for i,v in (zip(argnames, args) + sorted(kwargs.iteritems())):
                                 if i != 'self':
                                         if i != 'cls':
                                                 arg_values_hash.append("%s=%s" % (i,v))
