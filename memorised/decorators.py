@@ -3,6 +3,7 @@ __author__ = 'Wes Mason <wes [at] 1stvamp [dot] org>'
 __docformat__ = 'restructuredtext en'
 
 import memcache
+import itertools
 from hashlib import md5
 from functools import wraps
 import inspect
@@ -69,7 +70,7 @@ class memorise(object):
                         arg_values_hash = []
                         # Grab all the keyworded and non-keyworded arguements so
                         # that we can use them in the hashed memcache key
-                        for i,v in (zip(argnames, args) + sorted(kwargs.iteritems())):
+                        for i,v in sorted(itertools.chain(itertools.izip(argnames, args), kwargs.iteritems())):
                                 if i != 'self':
                                         if i != 'cls':
                                                 arg_values_hash.append("%s=%s" % (i,v))

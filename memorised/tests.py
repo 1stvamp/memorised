@@ -53,6 +53,14 @@ def func_get_a():
 def func_get_b():
         return unique()
 
+@memorise()
+def func_get_c(foo=None, bar=None):
+        return unique()
+
+@memorise()
+def func_get_d(bar=None, foo=None):
+        return unique()
+
 class TestMemorise(unittest.TestCase):
         def setUp(self):
                 self.mc = memcache.Client(['localhost:11211'], debug=0)
@@ -91,6 +99,24 @@ class TestMemorise(unittest.TestCase):
                 TestModel.set_d(1)
                 self.assertNotEqual(u, TestModel.get_d())
 
+        def testkwargs(self):
+                uncache(func_get_c)()
+                c1 = func_get_c()
+                c2 = func_get_c()
+                self.assertEqual(c1, c2)
+                c3 = func_get_c(foo=1)
+                self.assertNotEqual(c1, c3)
+                c3 = func_get_c(1, 2)
+                c4 = func_get_c(foo=1, bar=2)
+                c5 = func_get_c(bar=2, foo=1)
+                self.assertEqual(c3, c4)
+                self.assertEqual(c3, c5)
+                uncache(func_get_d)()
+                d1 = func_get_d(1, 2)
+                d2 = func_get_d(foo=2, bar=1)
+                d3 = func_get_d(bar=1, foo=2)
+                self.assertEqual(d1, d2)
+                self.assertEqual(d1, d3)
 
 def run():
         print
