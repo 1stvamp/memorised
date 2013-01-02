@@ -35,14 +35,17 @@ class memorise(object):
             We default to 0 == cache forever. None is turn off caching.
           `update` : boolean
             Refresh ttl value in cache.
+          `invalidate` : boolean
+            Invalidates key
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
                 self.ttl = ttl
                 self.update = update
+                self.invalidate = invalidate
                 if not mc:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
@@ -101,7 +104,7 @@ class memorise(object):
 
                         if self.mc:
                                 # Try and get the value from memcache
-                                output = self.mc.get(key)
+                                output = (not self.invalidate) and self.mc.get(key)
                                 exist = True
                                 if not output:
                                         exist = False
