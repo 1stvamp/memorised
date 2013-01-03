@@ -103,8 +103,8 @@ class memorise(object):
                                 parent_name = inspect.getmodule(fn).__name__
                         # Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
+                        key = key.encode('utf8') if type(key)==unicode else key
                         key = md5(key).hexdigest()
-
                         if self.mc:
                                 # Try and get the value from memcache
                                 if self.invalidate and self.use_hint:
