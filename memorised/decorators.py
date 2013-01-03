@@ -34,20 +34,23 @@ class memorise(object):
             Tells memcached the time which this value should expire.
             We default to 0 == cache forever. None is turn off caching.
           `update` : boolean
-            Refresh ttl value in cache.
+            If `invalidate` is False, Refresh ttl value in cache.
+            If `invalidate` is True, set the cache value to `value`
           `invalidate` : boolean
             Invalidates key
+          `value` : object
+            used only if invalidate == True and update == True
+            set the cached value to `value`
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, use_hint = False, hint_value=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
                 self.ttl = ttl
-                self.update = update or use_hint
+                self.update = update
                 self.invalidate = invalidate
-                self.use_hint = use_hint
-                self.hint_value = hint_value
+                self.value = value
 
                 if not mc:
                         if not mc_servers:
@@ -107,8 +110,8 @@ class memorise(object):
                         key = md5(key).hexdigest()
                         if self.mc:
                                 # Try and get the value from memcache
-                                if self.invalidate and self.use_hint:
-                                    output = self.hint_value
+                                if self.invalidate and self.update:
+                                    output = self.value
                                 else:
                                     output = (not self.invalidate) and self.mc.get(key)
                                 exist = True
