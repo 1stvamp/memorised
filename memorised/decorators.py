@@ -35,14 +35,20 @@ class memorise(object):
             We default to 0 == cache forever. None is turn off caching.
           `update` : boolean
             Refresh ttl value in cache.
+          `invalidate` : boolean
+            Invalidates key
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, use_hint = False, hint_value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
                 self.ttl = ttl
-                self.update = update
+                self.update = update or use_hint
+                self.invalidate = invalidate
+                self.use_hint = use_hint
+                self.hint_value = hint_value
+
                 if not mc:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
@@ -97,11 +103,14 @@ class memorise(object):
                                 parent_name = inspect.getmodule(fn).__name__
                         # Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
+                        key = key.encode('utf8') if type(key)==unicode else key
                         key = md5(key).hexdigest()
-
                         if self.mc:
                                 # Try and get the value from memcache
-                                output = self.mc.get(key)
+                                if self.invalidate and self.use_hint:
+                                    output = self.hint_value
+                                else:
+                                    output = (not self.invalidate) and self.mc.get(key)
                                 exist = True
                                 if not output:
                                         exist = False
