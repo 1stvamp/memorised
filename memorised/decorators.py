@@ -39,15 +39,14 @@ class memorise(object):
             Invalidates key
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, use_hint = False, hint_value=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
                 self.ttl = ttl
-                self.update = update or use_hint
+                self.update = update
                 self.invalidate = invalidate
-                self.use_hint = use_hint
-                self.hint_value = hint_value
+                self.value = value
 
                 if not mc:
                         if not mc_servers:
@@ -107,8 +106,8 @@ class memorise(object):
                         key = md5(key).hexdigest()
                         if self.mc:
                                 # Try and get the value from memcache
-                                if self.invalidate and self.use_hint:
-                                    output = self.hint_value
+                                if self.invalidate and self.update:
+                                    output = self.value
                                 else:
                                     output = (not self.invalidate) and self.mc.get(key)
                                 exist = True
