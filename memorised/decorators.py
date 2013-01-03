@@ -34,9 +34,13 @@ class memorise(object):
             Tells memcached the time which this value should expire.
             We default to 0 == cache forever. None is turn off caching.
           `update` : boolean
-            Refresh ttl value in cache.
+            If `invalidate` is False, Refresh ttl value in cache.
+            If `invalidate` is True, set the cache value to `value`
           `invalidate` : boolean
             Invalidates key
+          `value` : object
+            used only if invalidate == True and update == True
+            set the cached value to `value`
         """
 
         def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
