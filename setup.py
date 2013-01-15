@@ -7,10 +7,10 @@ except ImportError:
 
 setup(
         name='memorised',
-        version='1.0.1',
+        version='1.0.3',
         author='Wes Mason',
-        author_email='wes [at] 1stvamp [dot] org',
-        url='http://github.com/1stvamp/oneversion/tree/master/python/memorised/',
+        author_email='wes@1stvamp.org',
+        url='http://github.com/1stvamp//memorised/',
         packages=['memorised'],
         install_requires=['python-memcached'],
 )
