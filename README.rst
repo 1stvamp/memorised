@@ -9,13 +9,13 @@ add memcache caching to any function or method.
 Installation
 ============
 
-Install ``memorised`` using the supplied setup.py::
+Install ``memorised`` using pip::
 
-    python setup.py
+    pip install memorised
 
-Or install ``memorised`` using easy_install::
+Or using the supplied ``setup.py``::
 
-    easy_install memorised
+    python setup.py install
 
 Usage
 =====
