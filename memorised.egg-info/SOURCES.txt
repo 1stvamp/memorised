@@ -1,3 +1,4 @@
+README.rst
 setup.py
 memorised/__init__.py
 memorised/decorators.py
