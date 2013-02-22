@@ -1,3 +1,9 @@
+"""Installer for memorised
+"""
+
+import os
+cwd = os.path.dirname(__file__)
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -7,10 +13,13 @@ except ImportError:
 
 setup(
         name='memorised',
-        version='1.0.1',
+        version='1.0.3',
         author='Wes Mason',
-        author_email='wes [at] 1stvamp [dot] org',
-        url='http://github.com/1stvamp/oneversion/tree/master/python/memorised/',
-        packages=['memorised'],
-        install_requires=['python-memcached'],
+        author_email='wes@1stvamp.org',
+        description='memcache memoization decorators and utils for python',
+        long_description=open(os.path.join(cwd, 'README.rst')).read(),
+        url='http://github.com/1stvamp//memorised/',
+        packages=find_packages(exclude=('ez_setup',)),
+        install_requires=('python-memcached',),
+        license='BSD'
 )
