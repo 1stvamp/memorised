@@ -128,6 +128,8 @@ class memorise(object):
                                         # And push it into memcache
                                         if self.ttl is not None:
                                                 self.mc.set(key, set_value, time=self.ttl)
+                                        else:
+                                                self.mc.set(key, set_value)
                                 if output.__class__ is memcache_none:
                                         # Because not-found keys return
                                         # a None value, we use the
