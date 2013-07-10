@@ -18,7 +18,7 @@ setup(
         author_email='wes@1stvamp.org',
         description='memcache memoization decorators and utils for python',
         long_description=open(os.path.join(cwd, 'README.rst')).read(),
-        url='http://github.com/1stvamp//memorised/',
+        url='http://github.com/1stvamp/memorised/',
         packages=find_packages(exclude=('ez_setup',)),
         install_requires=('python-memcached',),
         license='BSD'
