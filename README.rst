@@ -1,5 +1,8 @@
-About memorised
-===============
+memorised
+=========
+
+About
+-----
 
 ``memorised`` is a python module containing handy ``python-memcached``
 decorators and utils.
@@ -7,7 +10,7 @@ Specifically the ``memorise`` decorator allows you to quickly and simply
 add memcache caching to any function or method.
 
 Installation
-============
+------------
 
 Install ``memorised`` using pip::
 
@@ -18,7 +21,7 @@ Or using the supplied ``setup.py``::
     python setup.py install
 
 Usage
-=====
+-----
 
 To cache a simple unbound function, just include the ``@memorise()`` tag to the
 function definition (the paranthesis are needed as the decorator needs to be
