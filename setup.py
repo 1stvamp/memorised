@@ -13,7 +13,7 @@ except ImportError:
 
 setup(
         name='memorised',
-        version='1.0.4',
+        version='1.0.5',
         author='Wes Mason',
         author_email='wes@1stvamp.org',
         description='memcache memoization decorators and utils for python',
