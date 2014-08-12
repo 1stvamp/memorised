@@ -1,7 +1,12 @@
-from memorised.decorators import memorise
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
 import unittest
-import memcache
 import uuid
+
+import memcache
+
+from memorised.decorators import memorise
 
 
 def unique():
@@ -122,9 +127,9 @@ class TestMemorise(unittest.TestCase):
 
 
 def run():
-        print
-        print "Running memorised.decorators test suite..."
-        print
+        print()
+        print("Running memorised.decorators test suite...")
+        print()
         suite = unittest.TestLoader().loadTestsFromTestCase(TestMemorise)
         unittest.TextTestRunner(verbosity=2).run(suite)
 

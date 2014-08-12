@@ -3,11 +3,14 @@ __author__ = 'Wes Mason <wes [at] 1stvamp [dot] org>'
 __docformat__ = 'restructuredtext en'
 __version__ = '1.0.1'
 
-import memcache
-import itertools
-from hashlib import md5
 from functools import wraps
+from hashlib import md5
 import inspect
+import itertools
+
+import memcache
+
+from memorised import compat
 
 
 class memorise(object):
@@ -70,7 +73,8 @@ class memorise(object):
                         # wrapped instances lose frame and no longer contain a
                         # reference to their parent instance/class within this
                         # frame
-                        argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
+                        func_code = compat.get_function_code(fn)
+                        argnames = func_code.co_varnames[:func_code.co_argcount]
                         method = False
                         static = False
                         if len(argnames) > 0:
@@ -82,8 +86,8 @@ class memorise(object):
                         arg_values_hash = []
                         # Grab all the keyworded and non-keyworded arguements so
                         # that we can use them in the hashed memcache key
-                        for i, v in sorted(itertools.chain(itertools.izip(argnames, args),
-                                                           kwargs.iteritems())):
+                        for i, v in sorted(itertools.chain(compat.izip(argnames, args),
+                                                           compat.iteritems(kwargs))):
                                 if i != 'self':
                                         if i != 'cls':
                                                 arg_values_hash.append("%s=%s" % (i, v))
@@ -109,7 +113,7 @@ class memorise(object):
                                 parent_name = inspect.getmodule(fn).__name__
                         # Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
-                        key = key.encode('utf8') if type(key) == unicode else key
+                        key = key.encode('utf8') if isinstance(key, compat.text_type) else key
                         key = md5(key).hexdigest()
                         if self.mc:
                                 # Try and get the value from memcache
