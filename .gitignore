@@ -2,3 +2,4 @@
 dist
 memorised.egg-info/
 *.pyc
+.tox

@@ -9,7 +9,7 @@ def unique():
         return str(uuid.uuid4())
 
 
-class TestModel:
+class Model:
         c = None
         d = None
 
@@ -82,12 +82,12 @@ class TestMemorise(unittest.TestCase):
                 self.assertNotEqual(b1, b2)
 
         def testinstancemethod(self):
-                t = TestModel()
+                t = Model()
                 u = unique()
                 t.set_a(u)
                 uncache(t.get_a, parent_keys=['id'])()
                 self.assertEqual(u, t.get_a())
-                t1 = TestModel()
+                t1 = Model()
                 self.assertEqual(u, t1.get_a())
                 t.set_b(u)
                 self.assertEqual(u, t.get_b())
@@ -96,15 +96,15 @@ class TestMemorise(unittest.TestCase):
 
         def testclassmethod(self):
                 u = unique()
-                TestModel.set_c(u)
-                uncache(TestModel.get_c)()
-                self.assertEqual(u, TestModel.get_c())
-                TestModel.set_c(1)
-                self.assertEqual(u, TestModel.get_c())
-                TestModel.set_d(u)
-                self.assertEqual(u, TestModel.get_d())
-                TestModel.set_d(1)
-                self.assertNotEqual(u, TestModel.get_d())
+                Model.set_c(u)
+                uncache(Model.get_c)()
+                self.assertEqual(u, Model.get_c())
+                Model.set_c(1)
+                self.assertEqual(u, Model.get_c())
+                Model.set_d(u)
+                self.assertEqual(u, Model.get_d())
+                Model.set_d(1)
+                self.assertNotEqual(u, Model.get_d())
 
         def testkwargs(self):
                 uncache(func_get_c)()
