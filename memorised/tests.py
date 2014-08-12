@@ -1,5 +1,4 @@
 from memorised.decorators import memorise
-from memorised.utils import uncache
 import unittest
 import memcache
 import uuid
@@ -71,9 +70,9 @@ def func_get_d(bar=None, foo=None):
 class TestMemorise(unittest.TestCase):
         def setUp(self):
                 self.mc = memcache.Client(['localhost:11211'], debug=0)
+                self.mc.flush_all()
 
         def testsimplefunction(self):
-                uncache(func_get_a)()
                 a1 = func_get_a()
                 a2 = func_get_a()
                 self.assertEqual(a1, a2)
@@ -85,7 +84,6 @@ class TestMemorise(unittest.TestCase):
                 t = Model()
                 u = unique()
                 t.set_a(u)
-                uncache(t.get_a, parent_keys=['id'])()
                 self.assertEqual(u, t.get_a())
                 t1 = Model()
                 self.assertEqual(u, t1.get_a())
@@ -97,7 +95,6 @@ class TestMemorise(unittest.TestCase):
         def testclassmethod(self):
                 u = unique()
                 Model.set_c(u)
-                uncache(Model.get_c)()
                 self.assertEqual(u, Model.get_c())
                 Model.set_c(1)
                 self.assertEqual(u, Model.get_c())
@@ -107,7 +104,6 @@ class TestMemorise(unittest.TestCase):
                 self.assertNotEqual(u, Model.get_d())
 
         def testkwargs(self):
-                uncache(func_get_c)()
                 c1 = func_get_c()
                 c2 = func_get_c()
                 self.assertEqual(c1, c2)
@@ -118,7 +114,6 @@ class TestMemorise(unittest.TestCase):
                 c5 = func_get_c(bar=2, foo=1)
                 self.assertEqual(c3, c4)
                 self.assertEqual(c3, c5)
-                uncache(func_get_d)()
                 d1 = func_get_d(1, 2)
                 d2 = func_get_d(foo=2, bar=1)
                 d3 = func_get_d(bar=1, foo=2)
