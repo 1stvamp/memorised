@@ -9,6 +9,7 @@ from hashlib import md5
 from functools import wraps
 import inspect
 
+
 class memorise(object):
         """Decorate any function or class method/staticmethod with a memcace
         enabled caching wrapper. Similar to the memoise pattern, this will push
@@ -43,7 +44,8 @@ class memorise(object):
             set the cached value to `value`
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False,
+                     invalidate=False, value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
@@ -80,10 +82,11 @@ class memorise(object):
                         arg_values_hash = []
                         # Grab all the keyworded and non-keyworded arguements so
                         # that we can use them in the hashed memcache key
-                        for i,v in sorted(itertools.chain(itertools.izip(argnames, args), kwargs.iteritems())):
+                        for i, v in sorted(itertools.chain(itertools.izip(argnames, args),
+                                                           kwargs.iteritems())):
                                 if i != 'self':
                                         if i != 'cls':
-                                                arg_values_hash.append("%s=%s" % (i,v))
+                                                arg_values_hash.append("%s=%s" % (i, v))
 
                         class_name = None
                         if method:
@@ -93,10 +96,10 @@ class memorise(object):
                                                 keys.append("%s=%s" % (key, getattr(args[0], key)))
                                 keys = ','.join(keys)
                                 if static:
-                                # Get the class name from the cls argument
+                                        # Get the class name from the cls argument
                                         class_name = args[0].__name__
                                 else:
-                                # Get the class name from the self argument
+                                        # Get the class name from the self argument
                                         class_name = args[0].__class__.__name__
                                 module_name = inspect.getmodule(args[0]).__name__
                                 parent_name = "%s.%s[%s]::" % (module_name, class_name, keys)
@@ -106,7 +109,7 @@ class memorise(object):
                                 parent_name = inspect.getmodule(fn).__name__
                         # Create a unique hash of the function/method call
                         key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
-                        key = key.encode('utf8') if type(key)==unicode else key
+                        key = key.encode('utf8') if type(key) == unicode else key
                         key = md5(key).hexdigest()
                         if self.mc:
                                 # Try and get the value from memcache
@@ -147,12 +150,13 @@ class memorise(object):
                                         set_attr = getattr(fn.__class__, self.set)
                                         set_attr = output
 
-                        else :
+                        else:
                                 # No memcache client instance available, just
                                 # return the output of the method
                                 output = fn(*args, **kwargs)
                         return output
                 return wrapper
+
 
 class memcache_none:
         """Stub class for storing None values in memcache,
@@ -161,8 +165,8 @@ class memcache_none:
         """
         pass
 
+
 if __name__ == '__main__':
         # Run unit tests
         from memorised import tests
         tests.run()
-

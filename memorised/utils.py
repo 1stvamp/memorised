@@ -7,11 +7,13 @@ import memcache
 from hashlib import md5
 import inspect
 
+
 def uncache(fn, mc=None, mc_servers=None, parent_keys=[]):
         if not mc:
                 if not mc_servers:
                         mc_servers = ['localhost:11211']
                 mc = memcache.Client(mc_servers, debug=0)
+
         def wrapper(*args, **kwargs):
                 argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
                 method = False
@@ -24,8 +26,8 @@ def uncache(fn, mc=None, mc_servers=None, parent_keys=[]):
                 arg_values_hash = []
                 # Grab all the keyworded and non-keyworded arguements so
                 # that we can use them in the hashed memcache key
-                for i,v in (zip(argnames, args) + kwargs.items()):
-                        arg_values_hash.append("%s=%s" % (i,v))
+                for i, v in (zip(argnames, args) + kwargs.items()):
+                        arg_values_hash.append("%s=%s" % (i, v))
 
                 class_name = None
                 if method:

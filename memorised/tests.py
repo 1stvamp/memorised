@@ -4,17 +4,19 @@ import unittest
 import memcache
 import uuid
 
+
 def unique():
         return str(uuid.uuid4())
+
 
 class TestModel:
         c = None
         d = None
+
         def __init__(self):
                 self.a = None
                 self.b = None
                 self.id = 1
-
 
         def set_a(self, a):
                 self.a = a
@@ -46,20 +48,25 @@ class TestModel:
         def get_d(cls):
                 return cls.d
 
+
 @memorise()
 def func_get_a():
         return unique()
 
+
 def func_get_b():
         return unique()
+
 
 @memorise()
 def func_get_c(foo=None, bar=None):
         return unique()
 
+
 @memorise()
 def func_get_d(bar=None, foo=None):
         return unique()
+
 
 class TestMemorise(unittest.TestCase):
         def setUp(self):
@@ -118,12 +125,14 @@ class TestMemorise(unittest.TestCase):
                 self.assertEqual(d1, d2)
                 self.assertEqual(d1, d3)
 
+
 def run():
         print
         print "Running memorised.decorators test suite..."
         print
-        suite =        unittest.TestLoader().loadTestsFromTestCase(TestMemorise)
+        suite = unittest.TestLoader().loadTestsFromTestCase(TestMemorise)
         unittest.TextTestRunner(verbosity=2).run(suite)
+
 
 if __name__ == '__main__':
         run()
