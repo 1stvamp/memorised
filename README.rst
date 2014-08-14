@@ -48,3 +48,4 @@ that you want to be appended to the memcache key::
             return blah()
 
 For other usage examples see the unittests in ``tests.py``.
+
