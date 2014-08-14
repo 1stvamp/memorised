@@ -3,11 +3,15 @@ __author__ = 'Wes Mason <wes [at] 1stvamp [dot] org>'
 __docformat__ = 'restructuredtext en'
 __version__ = '1.0.1'
 
-import memcache
-import itertools
-from hashlib import md5
 from functools import wraps
+from hashlib import md5
 import inspect
+import itertools
+
+import memcache
+
+from memorised import compat
+
 
 class memorise(object):
         """Decorate any function or class method/staticmethod with a memcace
@@ -43,7 +47,8 @@ class memorise(object):
             set the cached value to `value`
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False,
+                     invalidate=False, value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
@@ -62,74 +67,25 @@ class memorise(object):
         def __call__(self, fn):
                 @wraps(fn)
                 def wrapper(*args, **kwargs):
-                        # Get a list of arguement names from the func_code
-                        # attribute on the function/method instance, so we can
-                        # test for the presence of self or cls, as decorator
-                        # wrapped instances lose frame and no longer contain a
-                        # reference to their parent instance/class within this
-                        # frame
-                        argnames = fn.func_code.co_varnames[:fn.func_code.co_argcount]
-                        method = False
-                        static = False
-                        if len(argnames) > 0:
-                                if argnames[0] == 'self' or argnames[0] == 'cls':
-                                        method = True
-                                        if argnames[0] == 'cls':
-                                                static = True
-
-                        arg_values_hash = []
-                        # Grab all the keyworded and non-keyworded arguements so
-                        # that we can use them in the hashed memcache key
-                        for i,v in sorted(itertools.chain(itertools.izip(argnames, args), kwargs.iteritems())):
-                                if i != 'self':
-                                        if i != 'cls':
-                                                arg_values_hash.append("%s=%s" % (i,v))
-
-                        class_name = None
-                        if method:
-                                keys = []
-                                if len(self.parent_keys) > 0:
-                                        for key in self.parent_keys:
-                                                keys.append("%s=%s" % (key, getattr(args[0], key)))
-                                keys = ','.join(keys)
-                                if static:
-                                # Get the class name from the cls argument
-                                        class_name = args[0].__name__
-                                else:
-                                # Get the class name from the self argument
-                                        class_name = args[0].__class__.__name__
-                                module_name = inspect.getmodule(args[0]).__name__
-                                parent_name = "%s.%s[%s]::" % (module_name, class_name, keys)
-                        else:
-                                # Function passed in, use the module name as the
-                                # parent
-                                parent_name = inspect.getmodule(fn).__name__
-                        # Create a unique hash of the function/method call
-                        key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
-                        key = key.encode('utf8') if type(key)==unicode else key
-                        key = md5(key).hexdigest()
+                        key = self.key(fn, args, kwargs)
                         if self.mc:
                                 # Try and get the value from memcache
                                 if self.invalidate and self.update:
                                     output = self.value
                                 else:
-                                    output = (not self.invalidate) and self.mc.get(key)
+                                    output = (not self.invalidate) and self.get_cache(key)
                                 exist = True
-                                if not output:
+                                if output is None:
                                         exist = False
                                         # Otherwise get the value from
                                         # the function/method
-                                        output = fn(*args, **kwargs)
+                                        output = self.call_function(fn, args, kwargs)
                                 if self.update or not exist:
                                         if output is None:
                                                 set_value = memcache_none()
                                         else:
                                                 set_value = output
-                                        # And push it into memcache
-                                        if self.ttl is not None:
-                                                self.mc.set(key, set_value, time=self.ttl)
-                                        else:
-                                                self.mc.set(key, set_value)
+                                        self.set_cache(key, set_value)
                                 if output.__class__ is memcache_none:
                                         # Because not-found keys return
                                         # a None value, we use the
@@ -147,12 +103,76 @@ class memorise(object):
                                         set_attr = getattr(fn.__class__, self.set)
                                         set_attr = output
 
-                        else :
+                        else:
                                 # No memcache client instance available, just
                                 # return the output of the method
-                                output = fn(*args, **kwargs)
+                                output = self.call_function(fn, args, kwargs)
                         return output
                 return wrapper
+
+        def call_function(self, fn, args, kwargs):
+            return fn(*args, **kwargs)
+
+        def key(self, fn, args, kwargs):
+                # Get a list of arguement names from the func_code
+                # attribute on the function/method instance, so we can
+                # test for the presence of self or cls, as decorator
+                # wrapped instances lose frame and no longer contain a
+                # reference to their parent instance/class within this
+                # frame
+                func_code = compat.get_function_code(fn)
+                argnames = func_code.co_varnames[:func_code.co_argcount]
+                method = False
+                static = False
+                if len(argnames) > 0:
+                        if argnames[0] == 'self' or argnames[0] == 'cls':
+                                method = True
+                                if argnames[0] == 'cls':
+                                        static = True
+
+                arg_values_hash = []
+                # Grab all the keyworded and non-keyworded arguements so
+                # that we can use them in the hashed memcache key
+                for i, v in sorted(itertools.chain(compat.izip(argnames, args),
+                                                   compat.iteritems(kwargs))):
+                        if i != 'self':
+                                if i != 'cls':
+                                        arg_values_hash.append("%s=%s" % (i, v))
+
+                class_name = None
+                if method:
+                        keys = []
+                        if len(self.parent_keys) > 0:
+                                for key in self.parent_keys:
+                                        keys.append("%s=%s" % (key, getattr(args[0], key)))
+                        keys = ','.join(keys)
+                        if static:
+                                # Get the class name from the cls argument
+                                class_name = args[0].__name__
+                        else:
+                                # Get the class name from the self argument
+                                class_name = args[0].__class__.__name__
+                        module_name = inspect.getmodule(args[0]).__name__
+                        parent_name = "%s.%s[%s]::" % (module_name, class_name, keys)
+                else:
+                        # Function passed in, use the module name as the
+                        # parent
+                        parent_name = inspect.getmodule(fn).__name__
+                # Create a unique hash of the function/method call
+                key = "%s%s(%s)" % (parent_name, fn.__name__, ",".join(arg_values_hash))
+                key = key.encode('utf8') if isinstance(key, compat.text_type) else key
+                key = md5(key).hexdigest()
+                return key
+
+        def get_cache(self, key):
+            return self.mc.get(key)
+
+        def set_cache(self, key, value):
+            if self.ttl is not None:
+                    self.mc.set(key, value, time=self.ttl)
+            else:
+                    self.mc.set(key, value)
+
 
 class memcache_none:
         """Stub class for storing None values in memcache,
@@ -161,8 +181,8 @@ class memcache_none:
         """
         pass
 
+
 if __name__ == '__main__':
         # Run unit tests
         from memorised import tests
         tests.run()
-
