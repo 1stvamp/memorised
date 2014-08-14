@@ -3,5 +3,7 @@ python:
         - "2.6"
         - "2.7"
         - "3.3"
+services:
+        - memcached
 install: "python setup.py install"
 script: "nosetests"
