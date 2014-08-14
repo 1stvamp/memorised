@@ -25,7 +25,7 @@ else:
 
 setup(
         name='memorised',
-        version='1.0.5',
+        version='1.1.0',
         author='Wes Mason',
         author_email='wes@1stvamp.org',
         description='memcache memoization decorators and utils for python',
