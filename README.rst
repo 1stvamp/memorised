@@ -33,7 +33,7 @@ initialised at the time of binding to handle ``memorise`` specific arguements)::
     def myfunction():
         return 'hello world'
 
-You can do the same for simple instance and class methos, however for most
+You can do the same for simple instance and class methods, however for most
 instance methods, e.g. when caching results for database models, you probably
 want to include some form of identity to single out a method call on one
 instance from another instance. You can do this by providing a list of one ore
