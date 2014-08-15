@@ -1,5 +1,8 @@
 memorised
 =========
+.. image:: https://travis-ci.org/1stvamp/memorised.svg?branch=master
+    :target: https://travis-ci.org/1stvamp/memorised
+
 
 About
 -----
