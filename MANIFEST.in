@@ -1,1 +1,4 @@
-include README.rst
+include *.rst
+include *.ini
+include LICENSE
+include THANKS
