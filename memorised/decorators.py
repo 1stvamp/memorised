@@ -48,6 +48,25 @@ class memorise(object):
             set the cached value to `value`
         """
 
+        class dict_wrapper:
+                """
+                Wraps a dict-like object into a memcached-like object
+                This allows us to use @memcached with in-memory dicts, shelves, etc.
+                """
+                def __init__(self, wrapped_dict):
+                        self.wrapped_dict = wrapped_dict
+
+                def get(self, key):
+                        try:
+                                return self.wrapped_dict[key]
+                        except KeyError:
+                                return None
+
+                def set(self, key, value, time=0):
+                        if time != 0:
+                                raise ValueError('TTL not supported')
+                        self.wrapped_dict[key] = value
+
         def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False,
                      invalidate=False, value=None):
                 # Instance some default values, and customisations
@@ -58,12 +77,16 @@ class memorise(object):
                 self.invalidate = invalidate
                 self.value = value
 
-                if not mc:
+                if mc is None:
                         if not mc_servers:
                                 mc_servers = ['localhost:11211']
                         self.mc = memcache.Client(mc_servers, debug=0)
-                else:
+                elif hasattr(mc, 'get') and hasattr(mc, 'set'):
                         self.mc = mc
+                elif hasattr(mc, '__getitem__') and hasattr(mc, '__setitem__'):
+                        self.mc = memorise.dict_wrapper(mc)
+                else:
+                        raise ValueError('`mc` doesn\'t look like a valid cache')
 
         def __call__(self, fn):
                 @wraps(fn)
