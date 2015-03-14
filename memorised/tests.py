@@ -3,10 +3,37 @@
 from __future__ import unicode_literals
 import unittest
 import uuid
+import random
 
 import memcache
 
 from memorised.decorators import memorise, memcache_none
+
+
+class mc_mock:
+        """
+        Simple cache implementation that stores data in a dict.
+        It also stores ttl values, to test the ttl_splay argument.
+        It doesn't implementat actual expiration, since this doesn't matter on this unit test
+        """
+
+        def __init__(self, *args, **kwargs):
+                self.cache = {}
+
+        def set(self, key, value, time='-'):
+                # value, expiration, ttl
+                self.cache[key] = (value, time)
+
+        def get(self, key):
+                # Not found
+                if key not in self.cache:
+                    return None
+                # Return the value
+                return self.cache[key][0]
+
+        def ttl_range(self):
+                ttls = [x[1] for x in self.cache.values()]
+                return (min(*ttls), max(*ttls))
 
 
 class instrumented_memorise(memorise):
@@ -226,6 +253,26 @@ class TestMemorise(unittest.TestCase):
                 a2 = f()
                 self.assertEqual(f.mem.function_calls, 1)
                 self.assertEqual(a1, a2)
+
+        def test_ttl(self):
+                tests = {
+                    None: ('-', '-'),
+                    0: (0, 0),
+                    10: (10, 10),
+                    (5, 15): (5, 15),
+                    (lambda: random.randint(10, 15)): (10, 15),
+                }
+                for ttl, expected_range in tests.items():
+                    mc = mc_mock()
+
+                    @memorise(mc=mc, ttl=ttl)
+                    def f(k):
+                            return k
+
+                    for x in range(100):
+                            f(x)
+
+                    self.assertEqual(expected_range, mc.ttl_range())
 
 
 def run():
