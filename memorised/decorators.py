@@ -4,6 +4,7 @@ from functools import wraps
 from hashlib import md5
 import inspect
 import itertools
+import random
 
 import memcache
 
@@ -35,9 +36,15 @@ class memorise(object):
             to the same value as the cached return value. Handy for keeping
             models in line if attributes are accessed directly in other
             places, or for pickling instances.
-          `ttl` : integer
-            Tells memcached the time which this value should expire.
-            We default to 0 == cache forever. None is turn off caching.
+          `ttl` : integer, tuple or function
+            Tells memcached the time which each value should expire. This can be any of these:
+            - None: turn off caching
+            - 0: Caches forever (Default)
+            - number: seconds before cache invalidation. Should be positive
+            - tuple `(ttl_min, ttl_max)`: Each value will take between `ttl_min` and `ttl_max`
+              seconds to expire (inclusive). Ensure `1 <= ttl_min <= ttl_max`
+            - no-argument function: Will be called before every cache insertion to determine
+              the TTL of the new entry. Should return a positive number
           `update` : boolean
             If `invalidate` is False, Refresh ttl value in cache.
             If `invalidate` is True, set the cache value to `value`
@@ -53,7 +60,6 @@ class memorise(object):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
-                self.ttl = ttl
                 self.update = update
                 self.invalidate = invalidate
                 self.value = value
@@ -64,6 +70,21 @@ class memorise(object):
                         self.mc = memcache.Client(mc_servers, debug=0)
                 else:
                         self.mc = mc
+
+                # TTL is None: turn off caching
+                if ttl is None:
+                    self.ttl = lambda: None
+                # TTL is a constant number
+                elif isinstance(ttl, int):
+                    self.ttl = lambda: ttl
+                # TTL is a tuple (ttl_min, ttl_max)
+                elif isinstance(ttl, tuple) and len(ttl) == 2:
+                    self.ttl = lambda: random.randint(ttl[0], ttl[1])
+                # TTL is a no-arg function that returns the TTL value
+                elif hasattr(ttl, '__call__'):
+                    self.ttl = ttl
+                else:
+                    raise ValueError("TTL must be a constant value, tuple, function or None")
 
         def __call__(self, fn):
                 @wraps(fn)
@@ -169,8 +190,9 @@ class memorise(object):
             return self.mc.get(key)
 
         def set_cache(self, key, value):
-            if self.ttl is not None:
-                    self.mc.set(key, value, time=self.ttl)
+            ttl = self.ttl()
+            if ttl is not None:
+                    self.mc.set(key, value, time=ttl)
             else:
                     self.mc.set(key, value)
 
