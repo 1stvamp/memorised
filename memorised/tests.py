@@ -155,6 +155,11 @@ def func_nonzero():
         return 1
 
 
+@instrumented_memorise(mc={})
+def func_dict_cache():
+        return 1
+
+
 class TestMemorise(unittest.TestCase):
         def setUp(self):
                 self.mc = memcache.Client(['localhost:11211'], debug=0)
@@ -273,6 +278,17 @@ class TestMemorise(unittest.TestCase):
                             f(x)
 
                     self.assertEqual(expected_range, mc.ttl_range())
+
+        def test_dict_cache(self):
+                f = func_dict_cache
+                f.mem.reset()
+                dict_cache = f.mem.mc.wrapped_dict
+                dict_cache.clear()
+                a1 = f()
+                a2 = f()
+                self.assertEqual(a1, 1)
+                self.assertEqual(a2, 1)
+                self.assertEqual({f.mem.key(f, (), {}): 1}, dict_cache)
 
 
 def run():
