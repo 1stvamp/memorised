@@ -20,7 +20,7 @@ class mc_mock:
         def __init__(self, *args, **kwargs):
                 self.cache = {}
 
-        def set(self, key, value, time='-'):
+        def set(self, key, value, time):
                 # value, expiration, ttl
                 self.cache[key] = (value, time)
 
@@ -32,7 +32,7 @@ class mc_mock:
                 return self.cache[key][0]
 
         def ttl_range(self):
-                ttls = [x[1] for x in self.cache.values()]
+                ttls = [x[1] for x in self.cache.values()] or ['-']
                 return (min(*ttls), max(*ttls))
 
 

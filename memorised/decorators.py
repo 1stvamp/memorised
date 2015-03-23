@@ -217,7 +217,7 @@ class memorise(object):
             if ttl is not None:
                     self.mc.set(key, value, time=ttl)
             else:
-                    self.mc.set(key, value)
+                    pass  # TTL=None means data should not go to the cache
 
 
 class memcache_none:
