@@ -15,17 +15,14 @@ except ImportError:
 from memorised import compat
 
 
-# python-memcached does not have a release compatible with Python 3,
-# so use fork: https://github.com/eguven/python3-memcached
-if compat.PY3:
-    install_requires = ('python3-memcached',)
-else:
-    install_requires = ('python-memcached',)
+install_requires = (
+        'python-memcached>=1.58',
+)
 
 
 setup(
         name='memorised',
-        version='1.1.0',
+        version='1.2.0',
         author='Wes Mason',
         author_email='wes@1stvamp.org',
         description='memcache memoization decorators and utils for python',
@@ -34,7 +31,7 @@ setup(
         packages=find_packages(exclude=('ez_setup',)),
         install_requires=install_requires,
         license='BSD',
-        classifiers = [
+        classifiers=[
                 'Programming Language :: Python',
                 'Programming Language :: Python :: 2',
                 'Programming Language :: Python :: 2.6',
